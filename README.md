@@ -22,7 +22,9 @@ Video soon
 
 * `BOT_TOKEN` Get it from [@Botfather](https://t.me/botfather)
 
+### Features
 
+**Adding soon**
 
 ### Bot Commands 
 ```
