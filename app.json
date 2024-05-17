@@ -1,1 +1,35 @@
+{
+  "name": "UnZip Bot",
+  "description": "Telegram's best Open Source UnZip Bot",
+  "repository": "https://github.com/LISA-KOREA/UnZip-Bot",
+  "logo": "https://telegra.ph/file/dd1f5c456e1d5e9a7f8b4.jpg",
+  "keywords": ["telegram", "bot", "pyrogram"],
+  "env": {
+    "BOT_TOKEN": {
+      "description": "Telegram Bot Token",
+      "required": true
+    },
+    "API_ID": {
+      "description": "Telegram API ID",
+      "required": true
+    },
+    "API_HASH": {
+      "description": "Telegram API Hash",
+      "required": true
+    }
+  },
+  "addons": [
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  }
+}
 
