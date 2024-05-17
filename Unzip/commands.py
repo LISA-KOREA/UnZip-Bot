@@ -22,3 +22,17 @@ async def start(client, message):
         "Send me a ZIP file, and I'll unzip it for you."
     )
     await message.reply(start_message, reply_markup=reply_markup)
+
+
+
+@Client.on_message(filters.command("help"))
+async def help_command(client, message):
+    help_message = (
+        "Here are the commands you can use:\n\n"
+        "/start - Start the bot and get the welcome message\n"
+        "/help - Get help on how to use the bot\n\n"
+        "To unzip a file, simply send me a ZIP file and I will extract its contents and send them back to you.\n\n"
+        "©️ Channel : @NT_BOT_CHANNEL"
+    )
+    await message.reply(help_message)
+    
