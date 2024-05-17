@@ -9,3 +9,7 @@ app = Client(
     api_hash=API_HASH,
     plugins=dict(root="Unzip")
 )
+
+
+print("🎊 I AM ALIVE 🎊  • Support @NT_BOTS_SUPPORT")
+app.run()
