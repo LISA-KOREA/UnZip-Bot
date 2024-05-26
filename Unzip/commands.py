@@ -30,6 +30,11 @@ async def start(client, message):
     await message.reply(start_message, reply_markup=reply_markup)
 
 
+# Callback query handler
+@app.on_callback_query(filters.regex("cancel"))
+async def cancel(client, callback_query):
+    await callback_query.message.delete()
+
 
 @Client.on_message(filters.command("help"))
 async def help_command(client, message):
