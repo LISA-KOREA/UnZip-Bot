@@ -31,7 +31,7 @@ async def start(client, message):
 
 
 # Callback query handler
-@app.on_callback_query(filters.regex("cancel"))
+@Client.on_callback_query(filters.regex("cancel"))
 async def cancel(client, callback_query):
     await callback_query.message.delete()
 
