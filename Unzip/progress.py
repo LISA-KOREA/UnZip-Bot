@@ -7,6 +7,8 @@
 import math
 import os
 import time
+from pyrogram import enums 
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 
@@ -39,7 +41,15 @@ async def progress_for_pyrogram(current, total, ud_type, message, start):
                 text="{}\n {}".format(
                     ud_type,
                     tmp
-                )
+                ),
+                parse_mode=enums.ParseMode.MARKDOWN,
+                reply_markup=InlineKeyboardMarkup(
+                    [
+                        [ 
+                        InlineKeyboardButton('⛔ Cancel', callback_data=f"cancel")
+                       ]
+                   ]
+                 )
             )
         except:
             pass
