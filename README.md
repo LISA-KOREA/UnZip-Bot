@@ -19,7 +19,8 @@
 ## How To Deploy
 
 <b><details><summary>Tap To watch</summary>
-Video soon
+
+<a href="https://youtu.be/Nh-QDNUy2Ms?si=_36cDRgl-UuUgcD7"><img alt="how to create" src="https://img.shields.io/badge/-YouTube-red?style=for-the-badge&logo=youtube&logoColor=white"/></a> 
 
 
 </b>
