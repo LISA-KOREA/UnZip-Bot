@@ -10,8 +10,7 @@ import time
 from pyrogram import enums 
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-
-
+# Progress function with cancel button
 async def progress_for_pyrogram(current, total, ud_type, message, start):
     now = time.time()
     diff = now - start
@@ -36,6 +35,7 @@ async def progress_for_pyrogram(current, total, ud_type, message, start):
             humanbytes(speed),
             estimated_total_time if estimated_total_time != '' else "0 s"
         )
+
         try:
             await message.edit(
                 text="{}\n {}".format(
@@ -46,7 +46,7 @@ async def progress_for_pyrogram(current, total, ud_type, message, start):
                 reply_markup=InlineKeyboardMarkup(
                     [
                         [ 
-                        InlineKeyboardButton('⛔ Cancel', callback_data=f"cancel")
+                        InlineKeyboardButton('⛔ Cancel', callback_data=f"cancel_unzip")
                        ]
                    ]
                  )
