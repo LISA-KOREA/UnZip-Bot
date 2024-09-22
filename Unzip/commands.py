@@ -7,7 +7,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 
-
+active_tasks = {}
 
 
 @Client.on_message(filters.command("start"))
@@ -46,4 +46,17 @@ async def help_command(client, message):
         "©️ Channel : @NT_BOT_CHANNEL"
     )
     await message.reply(help_message)
-    
+
+
+
+@Client.on_callback_query(filters.regex("cancel_unzip"))
+async def cancel_callback(client, callback_query):
+    user_id = callback_query.from_user.id
+
+    if user_id in active_tasks:
+        task = active_tasks[user_id]
+        task.cancel()
+        await callback_query.answer("⛔ Unzipping has been cancelled.", show_alert=True)
+    else:
+        await callback_query.answer("⚠️ No ongoing unzip operation.", show_alert=True)
+
