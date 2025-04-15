@@ -10,8 +10,11 @@
 ###### You are currently supporting these formats:
 
 • ZIP files: .zip
+
 • RAR files: .rar
+
 • 7Z files: .7z
+
 • TAR files: .tar, .tar.gz, .tgz, .tar.bz2
 
 ### How To Deploy Heroku
