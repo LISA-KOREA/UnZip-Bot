@@ -25,7 +25,7 @@ async def start(client, message):
   )
     start_message = (
         "Hello!\n\n"
-        "Send me a ZIP file, and I'll unzip it for you."
+        "Send me a ZIP file, and I'll extract it for you. I also support .RAR, .7z, .tar, and more."
     )
     await message.reply(start_message, reply_markup=reply_markup)
 
