@@ -8,11 +8,17 @@
 import os
 import time
 import shutil
-import zipfile
 import tempfile
-from pyrogram import Client, filters
-from Unzip.progress import progress_for_pyrogram, humanbytes, TimeFormatter
 import asyncio
+from Unzip.config import Config
+from pyrogram import Client, filters
+from pyunpack import Archive
+from Unzip.progress import progress_for_pyrogram
+
+
+
+SUPPORTED_FORMATS = ('.zip', '.rar', '.7z', '.tar', '.tar.gz', '.tgz', '.tar.bz2')
+
 
 active_tasks = {}
 
@@ -20,64 +26,82 @@ active_tasks = {}
 async def handle_file(client, message):
     user_id = message.from_user.id
     document = message.document
+    file_name = document.file_name.lower()
 
-    if document.mime_type == 'application/zip':
-        download_message = None
-        file_path = None
-        unzip_dir = None
-        try:
-            download_message = await message.reply("⏳ Downloading the ZIP file...")
-            start = time.time()
+    download_message = None
+    file_path = None
+    extract_dir = None
 
-            file_path = await message.download(
-                file_name=document.file_name,
-                progress=progress_for_pyrogram,
-                progress_args=("⬇️ Downloading...", download_message, start)
+    if document.file_size > Config.MAX_FILE_SIZE:
+        return await message.reply("⚠️ File too large. Max allowed: 2GB")
+
+    try:
+        download_message = await message.reply("⏳ Downloading your file...")
+        start = time.time()
+
+        file_path = await message.download(
+            file_name=document.file_name,
+            progress=progress_for_pyrogram,
+            progress_args=("⬇️ Downloading...", download_message, start)
+        )
+
+        if file_name.endswith(SUPPORTED_FORMATS):
+            await download_message.edit("📦 Extracting archive...")
+
+            extract_dir = os.path.join(tempfile.gettempdir(), f'extracted_{user_id}')
+            os.makedirs(extract_dir, exist_ok=True)
+
+            task = asyncio.create_task(
+                extract_and_send_files(client, message, file_path, extract_dir, download_message, start)
             )
-
-            await download_message.edit("⏳ Extracting the ZIP file...")
-
-            unzip_dir = os.path.join(tempfile.gettempdir(), f'unzipped_{user_id}')
-            os.makedirs(unzip_dir, exist_ok=True)
-
-            task = asyncio.create_task(extract_and_send_files(client, message, file_path, unzip_dir, download_message, start))
             active_tasks[user_id] = task
-
             await task
-
-        except zipfile.BadZipFile:
-            await download_message.edit("❌ The file you sent is not a valid ZIP file.")
-        except asyncio.CancelledError:
-            await download_message.edit("❌ Unzipping has been cancelled.")
-        except Exception as e:
-            await download_message.edit(f"❌ An error occurred: {e}")
-        finally:
-            if file_path and os.path.exists(file_path):
-                os.remove(file_path)
-            if unzip_dir and os.path.exists(unzip_dir):
-                shutil.rmtree(unzip_dir)
-            active_tasks.pop(user_id, None)
-
-    else:
-        await message.reply("⚠️ Please send a valid ZIP file.")
-
-
-async def extract_and_send_files(client, message, file_path, unzip_dir, download_message, start):
-    with zipfile.ZipFile(file_path, 'r') as zip_ref:
-        zip_ref.extractall(unzip_dir)
-
-    await download_message.edit("⬆️ Sending the extracted files...")
-
-    for root, _, files in os.walk(unzip_dir):
-        for file_name in files:
-            extracted_file_path = os.path.join(root, file_name)
+        else:
+            await download_message.edit("⬆️ Uploading your file...")
             await client.send_document(
                 chat_id=message.chat.id,
-                document=extracted_file_path,
+                document=file_path,
+                caption=f"📄 `{document.file_name}`",
                 progress=progress_for_pyrogram,
                 progress_args=("⬆️ Uploading...", download_message, start)
             )
+            await download_message.edit("✅ File uploaded successfully.")
 
-    await download_message.edit("✅ All files have been extracted and sent successfully.")
+    except Exception as e:
+        await download_message.edit(f"❌ Error: {e}")
+    finally:
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+        if extract_dir and os.path.exists(extract_dir):
+            shutil.rmtree(extract_dir)
+        active_tasks.pop(user_id, None)
+
+
+async def extract_and_send_files(client, message, file_path, extract_dir, download_message, start):
+    try:
+        Archive(file_path).extractall(extract_dir)
+    except Exception as e:
+        await download_message.edit(f"❌ Failed to extract: {e}")
+        return
+
+    await download_message.edit("📤 Preparing files to send...")
+
+    for root, _, files in os.walk(extract_dir):
+        for file_name in files:
+            extracted_file_path = os.path.join(root, file_name)
+            relative_path = os.path.relpath(extracted_file_path, extract_dir)
+            try:
+                await client.send_document(
+                    chat_id=message.chat.id,
+                    document=extracted_file_path,
+                    file_name=relative_path,
+                    caption=f"📄 `{relative_path}`",
+                    progress=progress_for_pyrogram,
+                    progress_args=("⬆️ Uploading...", download_message, start)
+                )
+            except Exception as e:
+                await message.reply(f"❌ Failed to upload `{relative_path}`: {e}")
+
+    await download_message.edit("✅ All files have been extracted and sent.")
 
 
