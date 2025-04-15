@@ -1,4 +1,6 @@
 tgcrypto
 pyrofork
 pymongo
+pyunpack
+patool
 gunicorn==20.1.0
