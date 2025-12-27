@@ -12,4 +12,4 @@
 
 # (C) Don’t Change And Edit This File ✍️ | Warning ⚠️
 
-# ©️ 2022 - 2025
+# ©️ 2022 - 2026
